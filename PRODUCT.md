@@ -4,6 +4,12 @@
 **Generated:** 2026-08-11 (bulk Book Dev closeout)  
 **Status:** starter / portfolio boundary
 
+## Current product truth
+
+- A browser-only utility for percent-encoding and decoding URL components or full URIs.
+- Supports `encodeURIComponent`, `decodeURIComponent`, `encodeURI`, and `decodeURI` modes.
+- Includes copy output and malformed percent-encoding feedback; no backend is required.
+
 ## Purpose
 
 Portfolio repository under Book Dev. This brief records ownership and the
