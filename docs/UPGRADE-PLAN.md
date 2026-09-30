@@ -6,7 +6,6 @@ Score: 7/10 (was 6/10) — the utility already worked; codec is now tested, hand
 
 ## Backlog
 
-- P1: Query-string inspector (split a URL into decoded key/value rows).
 - P1: Live conversion as you type (with a toggle).
 - P2: Playwright smoke test for convert/copy/swap.
 
@@ -21,3 +20,4 @@ Score: 7/10 (was 6/10) — the utility already worked; codec is now tested, hand
 ## Done in this pass (pass 2)
 
 - Canonical host is config-driven: `lib/site.ts` resolves `NEXT_PUBLIC_SITE_URL` (validated, clear error on a non-http(s) value) and feeds `metadataBase`, generated `app/sitemap.ts` / `app/robots.ts` and the MCP `get_app_info` URL; removed the stale template `public/sitemap.xml` / `robots.txt` (they pointed at `bookchaowalit.com` and a `*.vercel.app` name that differs from the project URL). Tested in `lib/site.test.ts`.
+- Query-string inspector: "Inspect query string" splits a full URL or bare query into decoded key/value rows (`inspectQuery` in `lib/codec.ts`, URLSearchParams rules: `+` is a space, repeats kept, fragment ignored) with a clear message when there is no query. Tested.

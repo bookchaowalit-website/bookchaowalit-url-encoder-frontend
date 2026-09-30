@@ -41,3 +41,23 @@ export function inverse(mode: Mode): Mode {
   };
   return map[mode];
 }
+
+export type QueryRow = { key: string; value: string };
+export type QueryResult = { ok: true; rows: QueryRow[] } | { ok: false; error: string };
+
+/**
+ * Split a full URL or a bare query string into decoded key/value rows, using
+ * form-encoding rules (`+` is a space) like the browser's URLSearchParams.
+ * Repeated keys are kept in order; the fragment (#…) is ignored.
+ */
+export function inspectQuery(input: string): QueryResult {
+  const text = input.trim();
+  if (!text) return { ok: false, error: "Paste a URL or query string to inspect." };
+  const withoutFragment = text.split("#")[0];
+  const mark = withoutFragment.indexOf("?");
+  if (mark < 0 && !withoutFragment.includes("=")) return { ok: false, error: "No query string found (expected ?key=value)." };
+  const query = mark >= 0 ? withoutFragment.slice(mark + 1) : withoutFragment;
+  const rows = [...new URLSearchParams(query)].map(([key, value]) => ({ key, value }));
+  if (rows.length === 0) return { ok: false, error: "The query string is empty." };
+  return { ok: true, rows };
+}
