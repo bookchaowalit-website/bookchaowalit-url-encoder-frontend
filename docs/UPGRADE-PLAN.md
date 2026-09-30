@@ -21,3 +21,12 @@ Score: 7/10 (was 6/10) — the utility already worked; codec is now tested, hand
 
 - Canonical host is config-driven: `lib/site.ts` resolves `NEXT_PUBLIC_SITE_URL` (validated, clear error on a non-http(s) value) and feeds `metadataBase`, generated `app/sitemap.ts` / `app/robots.ts` and the MCP `get_app_info` URL; removed the stale template `public/sitemap.xml` / `robots.txt` (they pointed at `bookchaowalit.com` and a `*.vercel.app` name that differs from the project URL). Tested in `lib/site.test.ts`.
 - Query-string inspector: "Inspect query string" splits a full URL or bare query into decoded key/value rows (`inspectQuery` in `lib/codec.ts`, URLSearchParams rules: `+` is a space, repeats kept, fragment ignored) with a clear message when there is no query. Tested.
+
+## Done in this pass (pass 3)
+- Edge-case pass on `lib/codec.ts` (regression tests in `lib/codec.test.ts`):
+  - Encoding text with a lone UTF-16 surrogate (half an emoji) threw a
+    `URIError` that was reported as "Malformed percent-encoding"; encode modes
+    now explain the lone surrogate.
+  - `inspectQuery("https://example.com/a=b/c")` (no `?`) split the whole URL
+    into a bogus `https://example.com/a` row; URLs and paths without `?` now
+    report "No query string found". Bare `a=1&b=2` still works.

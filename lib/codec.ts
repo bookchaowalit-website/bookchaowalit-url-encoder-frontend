@@ -26,7 +26,12 @@ export function convert(mode: Mode, input: string, plusAsSpace = false): Result 
         return { ok: true, value: decodeURI(plusAsSpace ? input.replace(/\+/g, " ") : input) };
     }
   } catch (error) {
-    const reason = error instanceof URIError ? "Malformed percent-encoding (a % must be followed by two hex digits forming valid UTF-8)." : "Could not process input.";
+    // Encoding only throws for a lone UTF-16 surrogate (half of an emoji), not for bad percent-escapes.
+    const reason = !(error instanceof URIError)
+      ? "Could not process input."
+      : mode.endsWith("encode")
+        ? "The text contains half of an emoji or other character (a lone UTF-16 surrogate) that cannot be encoded as UTF-8."
+        : "Malformed percent-encoding (a % must be followed by two hex digits forming valid UTF-8).";
     return { ok: false, error: reason };
   }
 }
@@ -55,7 +60,8 @@ export function inspectQuery(input: string): QueryResult {
   if (!text) return { ok: false, error: "Paste a URL or query string to inspect." };
   const withoutFragment = text.split("#")[0];
   const mark = withoutFragment.indexOf("?");
-  if (mark < 0 && !withoutFragment.includes("=")) return { ok: false, error: "No query string found (expected ?key=value)." };
+  // Without a "?", a full URL or path has no query even if its path contains "=".
+  if (mark < 0 && (!withoutFragment.includes("=") || /^([a-z][a-z0-9+.-]*:|\/)/i.test(withoutFragment))) return { ok: false, error: "No query string found (expected ?key=value)." };
   const query = mark >= 0 ? withoutFragment.slice(mark + 1) : withoutFragment;
   const rows = [...new URLSearchParams(query)].map(([key, value]) => ({ key, value }));
   if (rows.length === 0) return { ok: false, error: "The query string is empty." };

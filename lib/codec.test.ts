@@ -49,3 +49,21 @@ describe("inspectQuery", () => {
     expect(inspectQuery("https://example.test/?")).toEqual({ ok: false, error: "The query string is empty." });
   });
 });
+
+describe("edge cases", () => {
+  it("explains a lone surrogate on encode instead of blaming percent-encoding", () => {
+    const result = convert("component-encode", "ok \uD83D");
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toMatch(/lone UTF-16 surrogate/);
+    const uri = convert("uri-encode", "\uDE00");
+    expect(!uri.ok && uri.error).toMatch(/surrogate/);
+    const decode = convert("component-decode", "%E0%A4%A");
+    expect(!decode.ok && decode.error).toMatch(/percent-encoding/);
+  });
+
+  it("does not read a URL path containing = as a query string", () => {
+    expect(inspectQuery("https://example.com/a=b/c")).toEqual({ ok: false, error: "No query string found (expected ?key=value)." });
+    expect(inspectQuery("/files/x=1")).toMatchObject({ ok: false });
+    expect(inspectQuery("a=1&b=2")).toMatchObject({ ok: true, rows: [{ key: "a", value: "1" }, { key: "b", value: "2" }] });
+  });
+});
