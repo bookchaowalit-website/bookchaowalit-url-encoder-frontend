@@ -30,3 +30,4 @@ Score: 7/10 (was 6/10) — the utility already worked; codec is now tested, hand
   - `inspectQuery("https://example.com/a=b/c")` (no `?`) split the whole URL
     into a bogus `https://example.com/a` row; URLs and paths without `?` now
     report "No query string found". Bare `a=1&b=2` still works.
+- Security deps: `next` 16.1.6 -> 16.3.8 (and `eslint-config-next`) clears critical GHSA-2xp9-vwfh-vxw4 (Image Optimization RCE) plus bundled postcss/sharp highs; lockfile regenerated with same-major `npm audit fix`. `npm audit --omit=dev`: C1/H3/M1/L0 [nanoid:h,next:c,postcss:h,sharp:h] -> C0/H0/M0/L0.
